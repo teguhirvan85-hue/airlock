@@ -8,7 +8,7 @@
 # raw issue text. A person reads the gatekeeper's card in the airlock room and
 # decides whether to forward it to the workshop.
 #
-# Before running: register the gatekeeper (agents/gatekeeper/README.md), so
+# Before running: register the gatekeeper (scripts/register_gatekeeper.sh), so
 # the airlock room can name it.
 version: 2
 params:
@@ -82,12 +82,17 @@ resources:
       4. Ask before pushing or opening a pull request, and say exactly what
          will leave the machine.
 
+      Run each shell command on its own (no `&&` or `;` chains), so the
+      repository's allow rules can let tests and local commits through and
+      only pushes and pull requests stop for a person.
+
       Never read or print .env or any secret. Never invite agents or join
       other rooms. Report each step in one or two sentences.
   airlock_room:
     type: room
     group: airlock_group
     name: airlock
+    channel_type: channel_private
     description: Raw issues land here. Only the Reader and the gatekeeper read it.
     bridge: "{bridge}"
     agents: [reader, airlock-gatekeeper]
@@ -98,12 +103,13 @@ resources:
     type: room
     group: airlock_group
     name: workshop
+    channel_type: channel_private
     description: Clean summaries only. The Fixer works here and asks before acting.
     bridge: "{bridge}"
     agents: [fixer]
     users: ["{$creator}"]
     kickoff: |
-      @{fixer.name} you're set up. Run the tests once and report the result in one line.
+      @{fixer.name} you're set up. Introduce yourself in one line and wait for a summary.
   airlock_group:
     type: group
     name: Airlock

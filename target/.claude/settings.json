@@ -7,7 +7,10 @@
       "Bash(git log:*)",
       "Bash(git checkout -b fix/:*)",
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Edit(shop/**)",
+      "Edit(tests/**)",
+      "Write(tests/**)"
     ],
     "deny": [
       "Read(./.env)",
