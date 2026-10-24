@@ -1,6 +1,6 @@
 """Gatekeeper: checks every triage summary the Reader posts in the airlock room.
 
-    python3 gatekeeper.py <reader agent name> [airlock room name]
+    python3 gatekeeper.py <reader names, comma-separated> [airlock room name]
 
 It runs no model. A Reader message that carries a JSON summary is checked
 against summary_schema; a pass is posted back as a clean card for a person to
@@ -47,17 +47,17 @@ def main() -> int:
     if len(sys.argv) not in (2, 3):
         print(__doc__)
         return 2
-    reader = sys.argv[1]
+    readers = {name.strip() for name in sys.argv[1].split(",") if name.strip()}
     room_name = sys.argv[2] if len(sys.argv) == 3 else DEFAULT_ROOM
 
     agent = SwitchAgent.from_name(NAME)
     room_id = agent.find_room(room_name)
     signal.signal(signal.SIGINT, lambda *_: agent.stop())
-    print(f"{NAME} watching {room_name} for summaries from {reader}")
+    print(f"{NAME} watching {room_name} for summaries from {', '.join(sorted(readers))}")
 
     try:
         for msg in agent.listen([room_id]):
-            if reader not in (msg.sender, msg.sender_name):
+            if not readers & {msg.sender, msg.sender_name}:
                 continue
             reply = verdict(msg.text)
             if reply:
